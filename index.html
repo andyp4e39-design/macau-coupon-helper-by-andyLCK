@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>消費獎賞助手</title>
+    <style>
+        :root { --primary: #c0392b; --success: #2ecc71; --warning: #f39c12; --danger: #d63031; --bg: #f4f7f6; --text-light: #95a5a6; 
+                --coupon-bg: #ffffff; --used-bg: #ececec; --dashed-color: #ddd; }
+        
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; font-size: 14px; }
+        
+        header { background: var(--primary); color: white; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 10px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 1.05rem; }
+        .settings-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: white; }
+
+        .container { padding: 10px; max-width: 600px; margin: 0 auto; }
+
+        /* 滑動開關 */
+        .switch-container { display: flex; align-items: center; gap: 8px; }
+        .status-pill { padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: bold; }
+        .status-pill.pending { background: #fff4e6; color: var(--warning); border: 1px solid #ffe8cc; }
+        .status-pill.done { background: #eafaf1; color: var(--success); border: 1px solid #d4f5e2; }
+
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e0e0e0; transition: .3s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* --- 獎賞券樣式 --- */
+        .coupon-wrapper { display: flex; align-items: stretch; background: var(--coupon-bg); border-radius: 10px; margin-bottom: 10px; 
+                          box-shadow: 0 2px 6px rgba(0,0,0,0.03); overflow: hidden; position: relative; transition: all 0.2s; }
+        
+        /* 左側獨立核銷框 */
+        .check-box-zone { width: 45px; display: flex; align-items: center; justify-content: center; background: #fafafa; border-right: 1px solid #f0f0f0; cursor: pointer; }
+        .check-circle { width: 20px; height: 20px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: transparent; transition: all 0.2s; }
+        .used .check-circle { background: var(--success); border-color: var(--success); color: white; }
+
+        .dashed-line { position: absolute; right: 85px; top: 8px; bottom: 8px; border-left: 1px dashed var(--dashed-color); z-index: 5; }
+        .dashed-line:before, .dashed-line:after { content: ""; position: absolute; left: -11px; width: 22px; height: 22px; background: var(--bg); border-radius: 50%; z-index: 6; }
+        .dashed-line:before { top: -19px; } .dashed-line:after { bottom: -19px; }
+
+        .coupon-info { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; justify-content: space-between; }
+        .coupon-info h4 { margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #333; }
+        .coupon-info p { margin: 0; font-size: 11px; color: #888; line-height: 1.4; }
+        
+        .coupon-amt-box { width: 85px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 8px; box-sizing: border-box; }
+        .coupon-amt-box .currency { font-size: 9px; font-weight: 600; color: #555; }
+        .coupon-amt-box .amount { font-size: 1.7rem; font-weight: bold; line-height: 1; }
+
+        /* 金額顏色 */
+        .amt-10 .amount { color: #d63031; } .amt-20 .amount { color: #f39c12; } .amt-50 .amount { color: #2ecc71; } .amt-100 .amount { color: #3498db; } .amt-200 .amount { color: #9b59b6; }
+
+        .btn-delete { color: #ccc; font-size: 1rem; position: absolute; top: 8px; right: 95px; z-index: 10; opacity: 0.3; }
+
+        /* 已核銷樣式：僅變灰，無刪除線 */
+        .coupon-wrapper.used { background: var(--used-bg); }
+        .coupon-wrapper.used .coupon-info h4, .coupon-wrapper.used .coupon-info p, 
+        .coupon-wrapper.used .coupon-amt-box * { color: #a0a0a0 !important; }
+        .coupon-wrapper.used .check-box-zone { background: #e5e5e5; }
+
+        /* 彈窗與按鈕 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; backdrop-filter: blur(4px); }
+        .modal-content { background: white; width: 88%; max-width: 380px; margin: 15% auto; padding: 20px; border-radius: 20px; }
+        .bank-card { background: white; border-radius: 15px; margin-bottom: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); overflow: hidden; }
+        .card-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #fcfcfc; }
+        .btn-add { background: #fff; border: 1px dashed #e5e5e5; color: #999; width: 94%; padding: 10px; border-radius: 10px; margin: 5px 3% 15px 3%; font-size: 13px; font-weight: 500; }
+        .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 15px 0; }
+        .amount-btn { padding: 12px 5px; border: 1.5px solid #eee; border-radius: 12px; background: white; font-weight: bold; }
+        .amount-btn.active { border-color: var(--success); background: #eafaf1; color: var(--success); }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🎟️ 消費獎賞助手</h1>
+    <button class="settings-btn" onclick="toggleModal('bankModal', true)">⚙️</button>
+</header>
+
+<div class="container" id="mainContainer"></div>
+
+<div class="modal" id="bankModal">
+    <div class="modal-content">
+        <h3 style="text-align:center; margin-top:0;">設定與管理</h3>
+        <div class="bank-grid" id="bankSelector" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:15px;"></div>
+        <button style="background:var(--success); color:white; border:none; padding:12px; width:100%; border-radius:12px; font-weight:bold;" onclick="toggleModal('bankModal', false)">儲存並返回</button>
+        <button style="background:var(--danger); color:white; border:none; padding:12px; width:100%; border-radius:12px; font-weight:bold; margin-top:10px;" onclick="weeklyReset()">🔄 開始新的一週</button>
+    </div>
+</div>
+
+<div class="modal" id="addCouponModal">
+    <div class="modal-content">
+        <h3 style="text-align:center; margin-top:0;">記錄 - <span id="targetBankName"></span></h3>
+        <div class="amount-grid">
+            <button class="amount-btn" onclick="selectAmount(10)">$10</button>
+            <button class="amount-btn" onclick="selectAmount(20)">$20</button>
+            <button class="amount-btn" onclick="selectAmount(50)">$50</button>
+            <button class="amount-btn" onclick="selectAmount(100)">$100</button>
+            <button class="amount-btn" onclick="selectAmount(200)">$200</button>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:15px; margin-bottom:20px;">
+            <button style="width:35px;height:35px;border-radius:50%;border:none;background:#eee;font-size:1.2rem;" onclick="changeQty(-1)">−</button>
+            <span id="displayQty" style="font-size:1.4rem;font-weight:bold;width:30px;text-align:center;">1</span>
+            <button style="width:35px;height:35px;border-radius:50%;border:none;background:#eee;font-size:1.2rem;" onclick="changeQty(1)">+</button>
+        </div>
+        <button style="background:var(--success); color:white; border:none; padding:12px; width:100%; border-radius:12px; font-weight:bold;" onclick="confirmAddCoupon()">確認新增</button>
+        <button style="background:none;border:none;width:100%;margin-top:10px;color:#999;" onclick="toggleModal('addCouponModal', false)">取消</button>
+    </div>
+</div>
+
+<script>
+    const allBanks = ["中銀 (BOC)", "Mpay", "工銀 (ICBC)", "大豐 (Tai Fung)", "國際 (Luso)", "廣發 (CGB)", "匯豐 (HSBC)", "大西洋 (BNU)", "商業 (BCM)", "華僑 (OCBC)"];
+    let userData = JSON.parse(localStorage.getItem('macau_v8')) || { myBanks: [], drawStatus: {}, coupons: [] };
+    let tempAdd = { bank: '', amount: 10, qty: 1 };
+
+    function saveData() { localStorage.setItem('macau_v8', JSON.stringify(userData)); render(); }
+
+    function toggleModal(id, show) {
+        document.getElementById(id).style.display = show ? 'block' : 'none';
+        if(id === 'bankModal' && show) initBankSelector();
+    }
+
+    function initBankSelector() {
+        const container = document.getElementById('bankSelector');
+        container.innerHTML = '';
+        allBanks.forEach(bank => {
+            const isSelected = userData.myBanks.includes(bank);
+            const div = document.createElement('div');
+            div.style.cssText = `padding:10px; border:1px solid ${isSelected? 'var(--primary)':'#eee'}; border-radius:10px; text-align:center; font-size:13px; cursor:pointer; background:${isSelected?'#fff5f5':'none'}; color:${isSelected?'var(--primary)':'#7f8c8d'}; font-weight:${isSelected?'bold':'normal'};`;
+            div.innerText = bank;
+            div.onclick = () => {
+                userData.myBanks = isSelected ? userData.myBanks.filter(b => b !== bank) : [...userData.myBanks, bank];
+                initBankSelector(); saveData();
+            };
+            container.appendChild(div);
+        });
+    }
+
+    function openAddModal(bank) {
+        tempAdd = { bank, amount: 10, qty: 1 };
+        document.getElementById('targetBankName').innerText = bank;
+        document.getElementById('displayQty').innerText = '1';
+        selectAmount(10); toggleModal('addCouponModal', true);
+    }
+
+    function selectAmount(amt) {
+        tempAdd.amount = amt;
+        document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === `$${amt}`));
+    }
+
+    function changeQty(diff) {
+        tempAdd.qty = Math.max(1, tempAdd.qty + diff);
+        document.getElementById('displayQty').innerText = tempAdd.qty;
+    }
+
+    function confirmAddCoupon() {
+        for(let i=0; i<tempAdd.qty; i++) {
+            userData.coupons.push({ id: Date.now().toString()+i, bank: tempAdd.bank, amount: tempAdd.amount, used: false });
+        }
+        saveData(); toggleModal('addCouponModal', false);
+    }
+
+    function render() {
+        const container = document.getElementById('mainContainer');
+        container.innerHTML = '';
+
+        if(userData.myBanks.length === 0) {
+            container.innerHTML = `<div style="text-align:center; color:#bbb; margin-top:80px;">請點擊 ⚙️ 設定銀行</div>`;
+            return;
+        }
+
+        userData.myBanks.forEach(bank => {
+            const isDrawn = userData.drawStatus[bank] || false;
+            const bankCoupons = userData.coupons.filter(c => c.bank === bank);
+
+            const card = document.createElement('div');
+            card.className = 'bank-card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="bank-name">
+                        ${bank}
+                        <span class="status-pill ${isDrawn ? 'done' : 'pending'}">${isDrawn ? '已抽' : '未抽'}</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" ${isDrawn ? 'checked' : ''} onchange="toggleDraw('${bank}')">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="coupon-list" style="padding: 10px 12px 2px 12px;">
+                    ${bankCoupons.map(c => `
+                        <div class="coupon-wrapper ${c.used ? 'used' : ''} amt-${c.amount}">
+                            <div class="check-box-zone" onclick="toggleCoupon('${c.id}')">
+                                <div class="check-circle">✓</div>
+                            </div>
+                            
+                            <span class="dashed-line"></span>
+                            <span class="btn-delete" onclick="deleteCoupon('${c.id}')">🗑️</span>
+                            
+                            <div class="coupon-info">
+                                <div>
+                                    <h4>${bank} 獎賞</h4>
+                                    <p>有效日期參考 App 內</p>
+                                </div>
+                                <p style="font-weight:bold; color:#666;">滿 ${c.amount * 3} 元可以使用</p>
+                            </div>
+                            
+                            <div class="coupon-amt-box">
+                                <span class="currency">MOP</span>
+                                <span class="amount">${c.amount}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn-add" onclick="openAddModal('${bank}')">+ 記錄獎賞</button>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function toggleDraw(bank) { userData.drawStatus[bank] = !userData.drawStatus[bank]; saveData(); }
+    
+    // 改為直接切換，不彈窗
+    function toggleCoupon(id) { 
+        const c = userData.coupons.find(c => c.id === id); 
+        if(c){ c.used = !c.used; saveData(); } 
+    }
+
+    function deleteCoupon(id) { if(confirm('刪除記錄？')){ userData.coupons = userData.coupons.filter(c => c.id !== id); saveData(); } }
+    function weeklyReset() { if(confirm('⚠️ 確定重置本週資料嗎？')){ userData.drawStatus={}; userData.coupons=[]; saveData(); toggleModal('bankModal', false); } }
+
+    render();
+</script>
+
+</body>
+</html>
