@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqfwG2LUc8BVhvhhvNz-sjUEA_vQg8YW9PwOxFPgduC1smL6xvxvdMQA1s1WtW9iqtNq1JJ0ZKB9IoXBqWSeovIY4aPBKSZzEqJe_oZllao0kNyM81vLwLQpY-EsiMJqedQ66oIgIV8jP8/s400/money_kinbut_texta.png">
     
     <link rel="icon" type="image/png" sizes="192x192" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqfwG2LUc8BVhvhhvNz-sjUEA_vQg8YW9PwOxFPgduC1smL6xvxvdMQA1s1WtW9iqtNq1JJ0ZKB9IoXBqWSeovIY4aPBKSZzEqJe_oZllao0kNyM81vLwLQpY-EsiMJqedQ66oIgIV8jP8/s400/money_kinbut_texta.png">
     
-    <meta name="apple-mobile-web-app-title" content="消費券記錄小助手">
-    
+    <meta name="apple-mobile-web-app-title" content="消費券助手">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
@@ -27,7 +27,7 @@
         header h1 { margin: 0; font-size: 1.2rem; }
         .settings-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
 
-        .container { padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 50px; /* 留一點空間給右下角標籤 */ }
+        .container { padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 50px; }
 
         .bank-logo { width: 1.8rem; height: 1.8rem; border-radius: 20%; background-color: #eee; object-fit: cover; flex-shrink: 0; display: block; }
         .bank-header-left { display: flex; align-items: center; gap: 10px; }
@@ -85,18 +85,17 @@
         .size-btn { padding: 10px 2px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; color: #7f8c8d; cursor: pointer; font-size: 0.85rem; text-align: center; }
         .size-btn.active { background: #3498db; color: white; border-color: #3498db; font-weight: bold; }
 
-        /* 右下角標籤樣式 */
         .footer-credit {
             position: fixed;
             bottom: 10px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.4); /* 半透明灰色背景 */
+            background: rgba(0, 0, 0, 0.4);
             color: rgba(255, 255, 255, 0.8);
             padding: 4px 10px;
             border-radius: 6px;
             font-size: 10px;
             z-index: 999;
-            pointer-events: none; /* 防止遮擋點擊操作 */
+            pointer-events: none;
             letter-spacing: 0.5px;
         }
     </style>
@@ -110,18 +109,18 @@
 
 <div class="container" id="mainContainer"></div>
 
-<div class="footer-credit">© 2026 Andy & Gemini. All rights reserved.</div>
+<div class="footer-credit">via by AndyLCK and Gemini</div>
 
 <div class="modal" id="bankModal">
     <div class="modal-content">
         <h3 style="text-align:center; margin-top:0; font-size: 1.3rem; margin-bottom: 10px;">系統設定</h3>
         <div class="setting-section-title">字體大小設定</div>
         <div class="size-selector">
-            <div class="size-btn" id="size-12" onclick="updateFontSize(12)">小字 </div>
-            <div class="size-btn" id="size-16" onclick="updateFontSize(16)">適中 </div>
-            <div class="size-btn" id="size-18" onclick="updateFontSize(18)">大字 </div>
+            <div class="size-btn" id="size-12" onclick="updateFontSize(12)">小字</div>
+            <div class="size-btn" id="size-16" onclick="updateFontSize(16)">適中</div>
+            <div class="size-btn" id="size-18" onclick="updateFontSize(18)">大字</div>
         </div>
-        <div class="setting-section-title">管理銀行</div>
+        <div class="setting-section-title">管理銀行 (共 8 間)</div>
         <div id="bankSelector" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:25px;"></div>
         <button class="btn-save-fancy" onclick="toggleModal('bankModal', false)">儲存並返回</button>
         <button class="btn-reset-fancy" onclick="weeklyReset()"><span>🔄</span> 開始新的一週</button>
@@ -149,17 +148,16 @@
 </div>
 
 <script>
+    // 更新為指定的 8 間銀行及對應名稱
     const logoMap = {
+        "支付寶 (AliPay)": "https://cdn.worldvectorlogo.com/logos/alipay-square-.svg", // 螞蟻銀行
         "中銀 (BOC)": "https://companieslogo.com/img/orig/2588.HK-042b21f7.png?t=1729834878", 
-        "Mpay": "https://play-lh.googleusercontent.com/UKRuhn1YEqCZQWMsJ841cFzjQTkbtuRsbW3xUW-QR5df21CcR90iJtVQJ4tMCNWxElV6",
+        "廣發 (CBG)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxl4_Phd8GEGFDShs-ASDKseW6V-qR72F0AQ&s",
         "工銀 (ICBC)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVaxU2DorJK5bDIzToHcJTBhX05--f1HFk9A&s",
-        "大豐 (Tai Fung)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3klf0NlYKbwo7IwRd_x6JFyofEkUr0qlZlA&s",
         "國際 (Luso)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUJU2ByM7L4igXAeyw45eOLTFFN-RF0L40BA&s",
-        "廣發 (CGB)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxl4_Phd8GEGFDShs-ASDKseW6V-qR72F0AQ&s",
-        "匯豐 (HSBC)": "https://create.hsbc/content/dam/brandhub/brand/ld-history/hexagon_1192x671.jpg",
-        "大西洋 (BNU)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfSyhvtFCfD0GYsXGiXLEhQMt54E4hCpr5OQ&s",
-        "商業 (BCM)": "https://play-lh.googleusercontent.com/XpYRoV0CuApSX0Vl8YsTTxgSDb8NoAbSqa3HeiTk6cNrO3EtlD4-aeb8tNPBwHhqJEo=w600-h300-pc0xffffff-pd",
-        "華僑 (OCBC)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSagq3XRz_ckioYubHzFTcBFoIVL3on8jHVHA&s"
+        "Mpay": "https://play-lh.googleusercontent.com/UKRuhn1YEqCZQWMsJ841cFzjQTkbtuRsbW3xUW-QR5df21CcR90iJtVQJ4tMCNWxElV6", // 澳門通
+        "大豐 (Tai Fung)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3klf0NlYKbwo7IwRd_x6JFyofEkUr0qlZlA&s",
+        "UEPay": "https://play-lh.googleusercontent.com/4hTscHjq6HmxkcybIlOsq2jR4xs6YyNL18vOM5DBbhcaK8fM2OvCPxyaLEfK4y-4dK9k" // 極易付
     };
 
     const allBanks = Object.keys(logoMap);
@@ -167,6 +165,7 @@
     let tempAdd = { bank: '', amount: 10, qty: 1 };
 
     function saveData() { localStorage.setItem('macau_v10', JSON.stringify(userData)); render(); }
+    
     function updateFontSize(size) {
         userData.fontSize = size;
         document.documentElement.style.setProperty('--base-size', size + 'px');
@@ -175,6 +174,7 @@
         if(activeBtn) activeBtn.classList.add('active');
         saveData();
     }
+
     function toggleModal(id, show) {
         document.getElementById(id).style.display = show ? 'block' : 'none';
         if(id === 'bankModal' && show) {
@@ -184,6 +184,7 @@
             if(currentSizeBtn) currentSizeBtn.classList.add('active');
         }
     }
+
     function initBankSelector() {
         const container = document.getElementById('bankSelector');
         container.innerHTML = '';
@@ -199,26 +200,31 @@
             container.appendChild(div);
         });
     }
+
     function openAddModal(bank) {
         tempAdd = { bank, amount: 10, qty: 1 };
         document.getElementById('targetBankName').innerText = bank;
         document.getElementById('displayQty').innerText = '1';
         selectAmount(10); toggleModal('addCouponModal', true);
     }
+
     function selectAmount(amt) {
         tempAdd.amount = amt;
         document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === `$${amt}`));
     }
+
     function changeQty(diff) {
         tempAdd.qty = Math.max(1, tempAdd.qty + diff);
         document.getElementById('displayQty').innerText = tempAdd.qty;
     }
+
     function confirmAddCoupon() {
         for(let i=0; i<tempAdd.qty; i++) {
             userData.coupons.push({ id: Date.now().toString()+i, bank: tempAdd.bank, amount: tempAdd.amount, used: false });
         }
         saveData(); toggleModal('addCouponModal', false);
     }
+
     function render() {
         document.documentElement.style.setProperty('--base-size', userData.fontSize + 'px');
         const container = document.getElementById('mainContainer');
@@ -258,7 +264,7 @@
                                     <h4>${bank} 獎賞</h4>
                                     <p>有效日期參考 App</p>
                                 </div>
-                                <p style="font-weight:bold; color:#666;">滿 MOP${c.amount * 3} 可以使用</p>
+                                <p style="font-weight:bold; color:#666;">滿 ${c.amount * 3} 使用</p>
                             </div>
                             <div class="coupon-amt-box">
                                 <span class="currency">MOP</span>
@@ -272,6 +278,7 @@
             container.appendChild(card);
         });
     }
+
     function toggleDraw(bank) { userData.drawStatus[bank] = !userData.drawStatus[bank]; saveData(); }
     function toggleCoupon(id) { 
         const c = userData.coupons.find(c => c.id === id); 
@@ -279,6 +286,7 @@
     }
     function deleteCoupon(id) { if(confirm('刪除記錄？')){ userData.coupons = userData.coupons.filter(c => c.id !== id); saveData(); } }
     function weeklyReset() { if(confirm('⚠️ 確定重置本週資料嗎？')){ userData.drawStatus={}; userData.coupons=[]; saveData(); toggleModal('bankModal', false); } }
+    
     render();
 </script>
 
