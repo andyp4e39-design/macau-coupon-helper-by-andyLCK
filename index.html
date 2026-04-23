@@ -8,26 +8,22 @@
         :root { 
             --primary: #c0392b; --success: #2ecc71; --warning: #f39c12; --danger: #d63031; --bg: #f4f7f6; 
             --coupon-bg: #ffffff; --used-bg: #ececec; --dashed-color: #ddd;
-            /* 這是控制核心 */
             --base-size: 16px; 
         }
         
-        /* 讓 html 的字體大小成為基準 */
         html { font-size: var(--base-size); transition: font-size 0.2s ease; }
-        
-        body { 
-            font-family: -apple-system, system-ui, sans-serif; 
-            background: var(--bg); margin: 0; padding: 0; color: #333; 
-            font-size: 1rem; /* 即跟隨 html 的設定 */
-        }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; font-size: 1rem; line-height: 1.5; }
         
         header { background: var(--primary); color: white; padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 10px rgba(0,0,0,0.1); }
         header h1 { margin: 0; font-size: 1.2rem; }
         .settings-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
 
-        .container { padding: 12px; max-width: 600px; margin: 0 auto; }
+        .container { padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 50px; /* 留一點空間給右下角標籤 */ }
 
-        .status-pill { padding: 3px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; }
+        .bank-logo { width: 1.8rem; height: 1.8rem; border-radius: 20%; background-color: #eee; object-fit: cover; flex-shrink: 0; display: block; }
+        .bank-header-left { display: flex; align-items: center; gap: 10px; }
+
+        .status-pill { padding: 3px 8px; border-radius: 10px; font-size: 0.75rem; font-weight: bold; white-space: nowrap; }
         .status-pill.pending { background: #fff4e6; color: var(--warning); border: 1px solid #ffe8cc; }
         .status-pill.done { background: #eafaf1; color: var(--success); border: 1px solid #d4f5e2; }
 
@@ -71,43 +67,55 @@
         .btn-save-fancy { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; cursor: pointer; }
         .btn-reset-fancy { background: var(--danger); color: white; border: none; padding: 15px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
         
-        .setting-section-title { font-size: 0.8rem; color: #95a5a6; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .setting-section-title { font-size: 0.8rem; color: #95a5a6; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; }
         
         .bank-option-fancy { padding: 12px 5px; border: 1px solid #eee; border-radius: 12px; text-align: center; font-size: 0.9rem; color: #7f8c8d; cursor: pointer; }
         .bank-option-fancy.selected { border-color: var(--danger); color: var(--danger); font-weight: bold; background: #fff5f5; }
 
-        .size-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-        .size-btn { padding: 10px 5px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; color: #7f8c8d; cursor: pointer; font-size: 0.85rem; text-align: center; }
+        .size-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+        .size-btn { padding: 10px 2px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; color: #7f8c8d; cursor: pointer; font-size: 0.85rem; text-align: center; }
         .size-btn.active { background: #3498db; color: white; border-color: #3498db; font-weight: bold; }
+
+        /* 右下角標籤樣式 */
+        .footer-credit {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.4); /* 半透明灰色背景 */
+            color: rgba(255, 255, 255, 0.8);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            z-index: 999;
+            pointer-events: none; /* 防止遮擋點擊操作 */
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>🎟️ 消費獎賞助手</h1>
+    <h1>💰 消費獎賞助手</h1>
     <button class="settings-btn" onclick="toggleModal('bankModal', true)">⚙️</button>
 </header>
 
 <div class="container" id="mainContainer"></div>
 
+<div class="footer-credit">via by AndyLCK and Gemini</div>
+
 <div class="modal" id="bankModal">
     <div class="modal-content">
-        <h3 style="text-align:center; margin-top:0; font-size: 1.3rem; margin-bottom: 20px;">系統設定</h3>
-        
-        <div class="setting-section-title">字體大小</div>
+        <h3 style="text-align:center; margin-top:0; font-size: 1.3rem; margin-bottom: 10px;">系統設定</h3>
+        <div class="setting-section-title">字體大小設定</div>
         <div class="size-selector">
-            <div class="size-btn" id="size-10" onclick="updateFontSize(10)">小 </div>
-            <div class="size-btn" id="size-12" onclick="updateFontSize(12)">中 </div>
-            <div class="size-btn" id="size-16" onclick="updateFontSize(16)">大 </div>
+            <div class="size-btn" id="size-12" onclick="updateFontSize(12)">小字 </div>
+            <div class="size-btn" id="size-16" onclick="updateFontSize(16)">適中 </div>
+            <div class="size-btn" id="size-18" onclick="updateFontSize(18)">大字 </div>
         </div>
-
         <div class="setting-section-title">管理銀行</div>
         <div id="bankSelector" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:25px;"></div>
-        
         <button class="btn-save-fancy" onclick="toggleModal('bankModal', false)">儲存並返回</button>
-        <button class="btn-reset-fancy" onclick="weeklyReset()">
-            <span>🔄</span> 開始新的一週
-        </button>
+        <button class="btn-reset-fancy" onclick="weeklyReset()"><span>🔄</span> 開始新的一週</button>
     </div>
 </div>
 
@@ -132,44 +140,41 @@
 </div>
 
 <script>
-    const allBanks = ["中銀 (BOC)", "Mpay", "工銀 (ICBC)", "大豐 (Tai Fung)", "國際 (Luso)", "廣發 (CGB)", "匯豐 (HSBC)", "大西洋 (BNU)", "商業 (BCM)", "華僑 (OCBC)"];
-    
-    let userData = JSON.parse(localStorage.getItem('macau_v9')) || { 
-        myBanks: [], 
-        drawStatus: {}, 
-        coupons: [],
-        fontSize: 16 
+    const logoMap = {
+        "中銀 (BOC)": "https://companieslogo.com/img/orig/2588.HK-042b21f7.png?t=1729834878", 
+        "Mpay": "https://play-lh.googleusercontent.com/UKRuhn1YEqCZQWMsJ841cFzjQTkbtuRsbW3xUW-QR5df21CcR90iJtVQJ4tMCNWxElV6",
+        "工銀 (ICBC)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVaxU2DorJK5bDIzToHcJTBhX05--f1HFk9A&s",
+        "大豐 (Tai Fung)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3klf0NlYKbwo7IwRd_x6JFyofEkUr0qlZlA&s",
+        "國際 (Luso)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUJU2ByM7L4igXAeyw45eOLTFFN-RF0L40BA&s",
+        "廣發 (CGB)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxl4_Phd8GEGFDShs-ASDKseW6V-qR72F0AQ&s",
+        "匯豐 (HSBC)": "https://create.hsbc/content/dam/brandhub/brand/ld-history/hexagon_1192x671.jpg",
+        "大西洋 (BNU)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQfSyhvtFCfD0GYsXGiXLEhQMt54E4hCpr5OQ&s",
+        "商業 (BCM)": "https://play-lh.googleusercontent.com/XpYRoV0CuApSX0Vl8YsTTxgSDb8NoAbSqa3HeiTk6cNrO3EtlD4-aeb8tNPBwHhqJEo=w600-h300-pc0xffffff-pd",
+        "華僑 (OCBC)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSagq3XRz_ckioYubHzFTcBFoIVL3on8jHVHA&s"
     };
-    
+
+    const allBanks = Object.keys(logoMap);
+    let userData = JSON.parse(localStorage.getItem('macau_v10')) || { myBanks: [], drawStatus: {}, coupons: [], fontSize: 16 };
     let tempAdd = { bank: '', amount: 10, qty: 1 };
 
-    function saveData() { 
-        localStorage.setItem('macau_v9', JSON.stringify(userData)); 
-        render(); 
-    }
-
-    // 真正生效的字體調整函數
+    function saveData() { localStorage.setItem('macau_v10', JSON.stringify(userData)); render(); }
     function updateFontSize(size) {
         userData.fontSize = size;
         document.documentElement.style.setProperty('--base-size', size + 'px');
-        
-        // 切換按鈕的高亮狀態
         document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
-        document.getElementById(`size-${size}`).classList.add('active');
-        
+        const activeBtn = document.getElementById(`size-${size}`);
+        if(activeBtn) activeBtn.classList.add('active');
         saveData();
     }
-
     function toggleModal(id, show) {
         document.getElementById(id).style.display = show ? 'block' : 'none';
         if(id === 'bankModal' && show) {
             initBankSelector();
-            // 進入設定時再次確認按鈕狀態
             document.querySelectorAll('.size-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`size-${userData.fontSize}`).classList.add('active');
+            const currentSizeBtn = document.getElementById(`size-${userData.fontSize}`);
+            if(currentSizeBtn) currentSizeBtn.classList.add('active');
         }
     }
-
     function initBankSelector() {
         const container = document.getElementById('bankSelector');
         container.innerHTML = '';
@@ -185,52 +190,44 @@
             container.appendChild(div);
         });
     }
-
     function openAddModal(bank) {
         tempAdd = { bank, amount: 10, qty: 1 };
         document.getElementById('targetBankName').innerText = bank;
         document.getElementById('displayQty').innerText = '1';
         selectAmount(10); toggleModal('addCouponModal', true);
     }
-
     function selectAmount(amt) {
         tempAdd.amount = amt;
         document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === `$${amt}`));
     }
-
     function changeQty(diff) {
         tempAdd.qty = Math.max(1, tempAdd.qty + diff);
         document.getElementById('displayQty').innerText = tempAdd.qty;
     }
-
     function confirmAddCoupon() {
         for(let i=0; i<tempAdd.qty; i++) {
             userData.coupons.push({ id: Date.now().toString()+i, bank: tempAdd.bank, amount: tempAdd.amount, used: false });
         }
         saveData(); toggleModal('addCouponModal', false);
     }
-
     function render() {
-        // 套用儲存的字體
         document.documentElement.style.setProperty('--base-size', userData.fontSize + 'px');
-
         const container = document.getElementById('mainContainer');
         container.innerHTML = '';
-
         if(userData.myBanks.length === 0) {
             container.innerHTML = `<div style="text-align:center; color:#bbb; margin-top:80px; font-size:1.1rem;">請點擊 ⚙️ 設定銀行</div>`;
             return;
         }
-
         userData.myBanks.forEach(bank => {
             const isDrawn = userData.drawStatus[bank] || false;
             const bankCoupons = userData.coupons.filter(c => c.bank === bank);
-
+            const imgSrc = logoMap[bank] || ""; 
             const card = document.createElement('div');
             card.className = 'bank-card';
             card.innerHTML = `
                 <div class="card-header">
-                    <div style="display:flex; align-items:center; gap:8px;">
+                    <div class="bank-header-left">
+                        <img src="${imgSrc}" class="bank-logo" alt="">
                         <span style="font-weight:bold; font-size:1.1rem;">${bank}</span>
                         <span class="status-pill ${isDrawn ? 'done' : 'pending'}">${isDrawn ? '已抽' : '未抽'}</span>
                     </div>
@@ -266,7 +263,6 @@
             container.appendChild(card);
         });
     }
-
     function toggleDraw(bank) { userData.drawStatus[bank] = !userData.drawStatus[bank]; saveData(); }
     function toggleCoupon(id) { 
         const c = userData.coupons.find(c => c.id === id); 
@@ -274,8 +270,6 @@
     }
     function deleteCoupon(id) { if(confirm('刪除記錄？')){ userData.coupons = userData.coupons.filter(c => c.id !== id); saveData(); } }
     function weeklyReset() { if(confirm('⚠️ 確定重置本週資料嗎？')){ userData.drawStatus={}; userData.coupons=[]; saveData(); toggleModal('bankModal', false); } }
-
-    // 啟動
     render();
 </script>
 
