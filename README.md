@@ -1,4 +1,5 @@
 # macau-coupon-helper-by-andyLCK
+A lightweight personal assistant designed for tracking Macau's weekly consumption rewards and coupon usage.  
 This allows you to verify whether a coupon has been used.
 
 ## Apps ICON credit:
@@ -21,6 +22,7 @@ https://play-lh.googleusercontent.com/4hTscHjq6HmxkcybIlOsq2jR4xs6YyNL18vOM5DBbh
 
 # release date:
 v1_2026/04/23
+v2_2026/04/29
 
 # update_info
 v1:  
@@ -28,5 +30,7 @@ v1:
 2) You can use this app to track your coupons and mark which ones have been used or redeemed.    
   
 v2:  
-1) updating....
-2) 
+1) Multi-Bank Management:   Easily toggle and manage up to 8 local banks with dynamic card displays.  
+2) Reward & "No Luck" Logs:   Support for logging various reward amounts and quantities, featuring a conflict-check to prevent mixing rewards with "No Luck" (Egg) entries.  
+3) UI & Status Customization:   Toggle between three font sizes and track draw progress with "Pending/Drawn" status switches.
+4) Smart Expiry Alerts:   Integrated "Expiring Soon" indicator with a red pulsing animation for rewards expiring within 24 hours.  
