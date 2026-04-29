@@ -22,7 +22,8 @@ https://play-lh.googleusercontent.com/4hTscHjq6HmxkcybIlOsq2jR4xs6YyNL18vOM5DBbh
 
 # release date:
 v1_2026/04/23
-v2_2026/04/29
+v2_2026/04/29 16:00:00
+v3_2026/04/29 20:57:00
 
 # update_info
 v1:  
