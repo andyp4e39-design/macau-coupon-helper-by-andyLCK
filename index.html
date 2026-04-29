@@ -124,7 +124,7 @@
 
 <div class="container" id="mainContainer"></div>
 
-<div class="footer-credit">© 2026 Andy & Gemini. All rights reserved.</div>
+<div class="footer-credit">© version2 2026 Andy & Gemini. All rights reserved.</div>
 
 <div class="modal" id="bankModal">
     <div class="modal-content">
@@ -237,7 +237,6 @@
 
     function selectAmount(amt) {
         tempAdd.amount = amt;
-        // 如果是白果，強制數量為 1 且隱藏/禁用加減
         if(amt === 0) {
             tempAdd.qty = 1;
             document.getElementById('displayQty').innerText = '1';
@@ -262,19 +261,19 @@
     function confirmAddCoupon() {
         const existing = userData.coupons.filter(c => c.bank === tempAdd.bank);
         
-        // 核心邏輯：限制互斥
         if (existing.length > 0) {
-            // 如果當前想加白果，但已有券
             if (tempAdd.amount === 0) {
                 alert(`⚠️ ${tempAdd.bank} 本週已有券，不能再新增白果。`);
                 return;
             }
-            // 如果已有白果，不論想加什麼都禁止
             if (existing.some(c => c.amount === 0)) {
                 alert(`⚠️ ${tempAdd.bank} 本週已記錄白果，不能新增其他券。`);
                 return;
             }
         }
+
+        // ✨ 自動標記為已抽
+        userData.drawStatus[tempAdd.bank] = true;
 
         const targetDate = getNextMondayObj();
         const dateStr = `${targetDate.getMonth() + 1}月${targetDate.getDate()}日`;
