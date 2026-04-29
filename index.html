@@ -43,7 +43,19 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        .coupon-wrapper { display: flex; align-items: stretch; background: var(--coupon-bg); border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); overflow: hidden; position: relative; }
+        .coupon-wrapper { display: flex; align-items: stretch; background: var(--coupon-bg); border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 2px solid transparent; overflow: hidden; position: relative; }
+        
+        .coupon-wrapper.expiring-soon { border-color: var(--danger); animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 
+            0% { box-shadow: 0 0 0 0px rgba(214, 48, 49, 0.4); } 
+            70% { box-shadow: 0 0 0 6px rgba(214, 48, 49, 0); } 
+            100% { box-shadow: 0 0 0 0px rgba(214, 48, 49, 0); } 
+        }
+
+        .coupon-wrapper.no-luck { background: rgba(0,0,0,0.02); border: 1.5px dashed #ccc; box-shadow: none; min-height: 60px; }
+        .coupon-wrapper.no-luck .check-box-zone { background: transparent; }
+        .coupon-wrapper.no-luck .check-circle { border-style: dashed; color: #ccc; }
+
         .check-box-zone { width: 55px; display: flex; align-items: center; justify-content: center; background: #fafafa; border-right: 1px solid #f0f0f0; cursor: pointer; flex-shrink: 0; }
         .check-circle { width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; }
         .used .check-circle { background: var(--success); border-color: var(--success); color: white; }
@@ -58,9 +70,10 @@
         .coupon-amt-box .amount { font-size: 1.8rem; font-weight: bold; line-height: 1; }
 
         .amt-10 .amount { color: #d63031; } .amt-20 .amount { color: #f39c12; } .amt-50 .amount { color: #2ecc71; } .amt-100 .amount { color: #3498db; } .amt-200 .amount { color: #9b59b6; }
+        .amt-0 .amount { color: #999; font-size: 1.4rem; }
 
         .btn-delete { color: #ccc; font-size: 1.1rem; position: absolute; top: 8px; right: 105px; z-index: 10; opacity: 0.3; padding: 5px; cursor: pointer; }
-        .coupon-wrapper.used { background: var(--used-bg); }
+        .coupon-wrapper.used { background: var(--used-bg); border-color: transparent !important; animation: none !important; }
         .coupon-wrapper.used .coupon-info h4, .coupon-wrapper.used .coupon-info p, .coupon-wrapper.used .coupon-amt-box * { color: #a0a0a0 !important; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; backdrop-filter: blur(4px); overflow-y: auto; }
@@ -72,6 +85,8 @@
         .amount-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
         .amount-btn { padding: 12px 5px; border: 1.5px solid #eee; border-radius: 15px; background: white; font-weight: bold; font-size: 1rem; cursor: pointer; }
         .amount-btn.active { border-color: var(--success); background: #eafaf1; color: var(--success); }
+        .amount-btn.btn-no-luck { color: #999; }
+        .amount-btn.btn-no-luck.active { border-color: #999; background: #f0f0f0; color: #666; }
 
         .btn-save-fancy { background: var(--success); color: white; border: none; padding: 15px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; cursor: pointer; }
         .btn-reset-fancy { background: var(--danger); color: white; border: none; padding: 15px; width: 100%; border-radius: 15px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
@@ -136,8 +151,9 @@
             <button class="amount-btn" onclick="selectAmount(50)">$50</button>
             <button class="amount-btn" onclick="selectAmount(100)">$100</button>
             <button class="amount-btn" onclick="selectAmount(200)">$200</button>
+            <button class="amount-btn btn-no-luck" onclick="selectAmount(0)">白果 🥚</button>
         </div>
-        <div style="display:flex; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
+        <div id="qtyControl" style="display:flex; justify-content:center; align-items:center; gap:20px; margin-bottom:20px;">
             <button style="width:40px;height:40px;border-radius:50%;border:none;background:#eee;font-size:1.5rem;" onclick="changeQty(-1)">−</button>
             <span id="displayQty" style="font-size:1.5rem;font-weight:bold;width:40px;text-align:center;">1</span>
             <button style="width:40px;height:40px;border-radius:50%;border:none;background:#eee;font-size:1.5rem;" onclick="changeQty(1)">+</button>
@@ -148,21 +164,30 @@
 </div>
 
 <script>
-    // 更新為指定的 8 間銀行及對應名稱
     const logoMap = {
-        "支付寶 (AliPay)": "https://cdn.worldvectorlogo.com/logos/alipay-square-.svg", // 螞蟻銀行
+        "支付寶 (AliPay)": "https://cdn.worldvectorlogo.com/logos/alipay-square-.svg",
         "中銀 (BOC)": "https://companieslogo.com/img/orig/2588.HK-042b21f7.png?t=1729834878", 
         "廣發 (CBG)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxl4_Phd8GEGFDShs-ASDKseW6V-qR72F0AQ&s",
         "工銀 (ICBC)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVaxU2DorJK5bDIzToHcJTBhX05--f1HFk9A&s",
         "國際 (Luso)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUJU2ByM7L4igXAeyw45eOLTFFN-RF0L40BA&s",
-        "Mpay": "https://play-lh.googleusercontent.com/UKRuhn1YEqCZQWMsJ841cFzjQTkbtuRsbW3xUW-QR5df21CcR90iJtVQJ4tMCNWxElV6", // 澳門通
+        "Mpay": "https://play-lh.googleusercontent.com/UKRuhn1YEqCZQWMsJ841cFzjQTkbtuRsbW3xUW-QR5df21CcR90iJtVQJ4tMCNWxElV6",
         "大豐 (Tai Fung)": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3klf0NlYKbwo7IwRd_x6JFyofEkUr0qlZlA&s",
-        "UEPay": "https://play-lh.googleusercontent.com/4hTscHjq6HmxkcybIlOsq2jR4xs6YyNL18vOM5DBbhcaK8fM2OvCPxyaLEfK4y-4dK9k" // 極易付
+        "UEPay": "https://play-lh.googleusercontent.com/4hTscHjq6HmxkcybIlOsq2jR4xs6YyNL18vOM5DBbhcaK8fM2OvCPxyaLEfK4y-4dK9k"
     };
 
     const allBanks = Object.keys(logoMap);
     let userData = JSON.parse(localStorage.getItem('macau_v10')) || { myBanks: [], drawStatus: {}, coupons: [], fontSize: 16 };
     let tempAdd = { bank: '', amount: 10, qty: 1 };
+
+    function getNextMondayObj() {
+        const now = new Date();
+        const day = now.getDay();
+        const diff = (day === 0 ? 1 : 8 - day);
+        const nextMonday = new Date(now);
+        nextMonday.setDate(now.getDate() + diff);
+        nextMonday.setHours(23, 59, 59, 0);
+        return nextMonday;
+    }
 
     function saveData() { localStorage.setItem('macau_v10', JSON.stringify(userData)); render(); }
     
@@ -205,12 +230,28 @@
         tempAdd = { bank, amount: 10, qty: 1 };
         document.getElementById('targetBankName').innerText = bank;
         document.getElementById('displayQty').innerText = '1';
+        document.getElementById('qtyControl').style.opacity = '1';
+        document.getElementById('qtyControl').style.pointerEvents = 'auto';
         selectAmount(10); toggleModal('addCouponModal', true);
     }
 
     function selectAmount(amt) {
         tempAdd.amount = amt;
-        document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === `$${amt}`));
+        // 如果是白果，強制數量為 1 且隱藏/禁用加減
+        if(amt === 0) {
+            tempAdd.qty = 1;
+            document.getElementById('displayQty').innerText = '1';
+            document.getElementById('qtyControl').style.opacity = '0.3';
+            document.getElementById('qtyControl').style.pointerEvents = 'none';
+        } else {
+            document.getElementById('qtyControl').style.opacity = '1';
+            document.getElementById('qtyControl').style.pointerEvents = 'auto';
+        }
+        
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            const btnVal = btn.innerText.includes('白果') ? 0 : parseInt(btn.innerText.replace('$', ''));
+            btn.classList.toggle('active', btnVal === amt);
+        });
     }
 
     function changeQty(diff) {
@@ -219,8 +260,35 @@
     }
 
     function confirmAddCoupon() {
+        const existing = userData.coupons.filter(c => c.bank === tempAdd.bank);
+        
+        // 核心邏輯：限制互斥
+        if (existing.length > 0) {
+            // 如果當前想加白果，但已有券
+            if (tempAdd.amount === 0) {
+                alert(`⚠️ ${tempAdd.bank} 本週已有券，不能再新增白果。`);
+                return;
+            }
+            // 如果已有白果，不論想加什麼都禁止
+            if (existing.some(c => c.amount === 0)) {
+                alert(`⚠️ ${tempAdd.bank} 本週已記錄白果，不能新增其他券。`);
+                return;
+            }
+        }
+
+        const targetDate = getNextMondayObj();
+        const dateStr = `${targetDate.getMonth() + 1}月${targetDate.getDate()}日`;
+        const timestamp = targetDate.getTime();
+
         for(let i=0; i<tempAdd.qty; i++) {
-            userData.coupons.push({ id: Date.now().toString()+i, bank: tempAdd.bank, amount: tempAdd.amount, used: false });
+            userData.coupons.push({ 
+                id: Date.now().toString()+i, 
+                bank: tempAdd.bank, 
+                amount: tempAdd.amount, 
+                used: false,
+                date: dateStr,
+                expiryTs: timestamp
+            });
         }
         saveData(); toggleModal('addCouponModal', false);
     }
@@ -229,10 +297,15 @@
         document.documentElement.style.setProperty('--base-size', userData.fontSize + 'px');
         const container = document.getElementById('mainContainer');
         container.innerHTML = '';
+        
+        const nowTs = Date.now();
+        const oneDayMs = 24 * 60 * 60 * 1000;
+
         if(userData.myBanks.length === 0) {
             container.innerHTML = `<div style="text-align:center; color:#bbb; margin-top:80px; font-size:1.1rem;">請點擊 ⚙️ 設定銀行</div>`;
             return;
         }
+
         userData.myBanks.forEach(bank => {
             const isDrawn = userData.drawStatus[bank] || false;
             const bankCoupons = userData.coupons.filter(c => c.bank === bank);
@@ -252,26 +325,34 @@
                     </label>
                 </div>
                 <div style="padding: 12px 15px 5px 15px;">
-                    ${bankCoupons.map(c => `
-                        <div class="coupon-wrapper ${c.used ? 'used' : ''} amt-${c.amount}">
+                    ${bankCoupons.map(c => {
+                        const isNoLuck = c.amount === 0;
+                        const timeLeft = (c.expiryTs || 0) - nowTs;
+                        const isExpiring = !isNoLuck && !c.used && timeLeft > 0 && timeLeft <= oneDayMs;
+                        
+                        return `
+                        <div class="coupon-wrapper ${c.used ? 'used' : ''} ${isExpiring ? 'expiring-soon' : ''} ${isNoLuck ? 'no-luck' : ''} amt-${c.amount}">
                             <div class="check-box-zone" onclick="toggleCoupon('${c.id}')">
-                                <div class="check-circle">✓</div>
+                                <div class="check-circle">${isNoLuck ? '🥚' : '✓'}</div>
                             </div>
                             <span class="dashed-line"></span>
                             <span class="btn-delete" onclick="deleteCoupon('${c.id}')">🗑️</span>
                             <div class="coupon-info">
                                 <div>
-                                    <h4>${bank} 獎賞</h4>
-                                    <p>有效日期參考 App</p>
+                                    <h4 style="display:flex; align-items:center; gap:5px;">
+                                        ${isNoLuck ? '本週無獎勵' : bank + ' 獎賞'}
+                                        ${isExpiring ? '<span style="color:var(--danger); font-size:0.7rem; background:#fff1f0; padding:1px 4px; border-radius:4px;">🔥 快過期</span>' : ''}
+                                    </h4>
+                                    <p>${isNoLuck ? '運氣蓄力中...' : '有效日期至 ' + (c.date || '下週一')}</p>
                                 </div>
-                                <p style="font-weight:bold; color:#666;">滿 ${c.amount * 3} 使用</p>
+                                <p style="font-weight:bold; color:#666;">${isNoLuck ? '下次加油！' : '滿 ' + (c.amount * 3) + ' 使用'}</p>
                             </div>
                             <div class="coupon-amt-box">
-                                <span class="currency">MOP</span>
-                                <span class="amount">${c.amount}</span>
+                                <span class="currency">${isNoLuck ? '' : 'MOP'}</span>
+                                <span class="amount">${isNoLuck ? '白果' : c.amount}</span>
                             </div>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
                 <button class="btn-add" onclick="openAddModal('${bank}')">+ 記錄獎賞</button>
             `;
