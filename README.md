@@ -33,4 +33,10 @@ v2:
 1) Multi-Bank Management:   Easily toggle and manage up to 8 local banks with dynamic card displays.  
 2) Reward & "No Luck" Logs:   Support for logging various reward amounts and quantities, featuring a conflict-check to prevent mixing rewards with "No Luck" (Egg) entries.  
 3) UI & Status Customization:   Toggle between three font sizes and track draw progress with "Pending/Drawn" status switches.
-4) Smart Expiry Alerts:   Integrated "Expiring Soon" indicator with a red pulsing animation for rewards expiring within 24 hours.  
+4) Smart Expiry Alerts:   Integrated "Expiring Soon" indicator with a red pulsing animation for rewards expiring within 24 hours.
+
+v3:  
+1) Ascending Sort: Coupons are now automatically sorted by value, placing smaller amounts (e.g., $10) at the top.
+2) Realistic Stamp: The "Used" stamp now features a grunge texture and multiply blending, making it look like real ink without distorting the shape.
+3) Version Footer: A subtle "v2 © Andy & Gemini" credit is pinned to the bottom-right for official versioning.
+4) Full Integration: All logic, sorting, and styling are merged into one stable file for better performance
