@@ -18,7 +18,7 @@
             --primary: #c0392b; --success: #2ecc71; --warning: #f39c12; --danger: #d63031; --bg: #f4f7f6; 
             --coupon-bg: #ffffff; --used-bg: #ececec; --dashed-color: #ddd;
             --base-size: 16px; 
-            --stamp-red: #c0392b; /* 印章專用色 */
+            --stamp-red: #c0392b;
         }
         
         html { font-size: var(--base-size); transition: font-size 0.2s ease; }
@@ -44,7 +44,6 @@
         input:checked + .slider { background-color: var(--success); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* 優惠券外層 */
         .coupon-wrapper { display: flex; align-items: stretch; background: var(--coupon-bg); border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 2px solid transparent; overflow: hidden; position: relative; }
         
         .coupon-wrapper.expiring-soon { border-color: var(--danger); animation: pulse-red 2s infinite; }
@@ -75,85 +74,79 @@
         .amt-0 .amount { color: #999; font-size: 1.4rem; }
 
         .btn-delete { color: #ccc; font-size: 1.1rem; position: absolute; top: 8px; right: 105px; z-index: 20; opacity: 0.3; padding: 5px; cursor: pointer; }
-        
-        /* 狀態：已使用 */
         .coupon-wrapper.used { background: var(--used-bg); border-color: transparent !important; animation: none !important; }
         .coupon-wrapper.used .coupon-info h4, .coupon-wrapper.used .coupon-info p, .coupon-wrapper.used .coupon-amt-box * { color: #a0a0a0 !important; }
 
-		/* --- 優化後的仿真印章 CSS --- */
-		.stamp-effect-wrapper {
-			position: absolute;
-			top: 50%;
-			right: 125px; /* 稍微拉開一點距離 */
-			transform: translateY(-50%);
-			filter: url(#grunge-filter);
-			z-index: 15;
-			pointer-events: none;
-			/* 核心改動：增加透明度並讓顏色與背景融合 */
-			opacity: 0.65; 
-			mix-blend-mode: multiply; 
-		}
+        /* --- 優化後的仿真印章 CSS --- */
+        .stamp-effect-wrapper {
+            position: absolute;
+            top: 50%;
+            right: 125px; 
+            transform: translateY(-50%);
+            filter: url(#grunge-filter);
+            z-index: 15;
+            pointer-events: none;
+            opacity: 0.65; 
+            mix-blend-mode: multiply; 
+        }
 
-		.stamp-container {
-			position: relative;
-			width: 80px;
-			height: 80px;
-			border: 3px solid var(--stamp-red);
-			border-radius: 50%;
-			display: flex;
-			justify-content: center;
-			align-items: center;
-			color: var(--stamp-red);
-			font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
-			font-weight: 900;
-			transform: rotate(-15deg); /* 增加一點旋轉角度更有手蓋感 */
-			box-sizing: border-box;
-		}
+        .stamp-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--stamp-red);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--stamp-red);
+            font-family: "Microsoft JhengHei", "Heiti TC", sans-serif;
+            font-weight: 900;
+            transform: rotate(-15deg); 
+            box-sizing: border-box;
+        }
 
-		.inner-ring {
-			position: absolute;
-			width: 64px;
-			height: 64px;
-			border: 1.5px solid var(--stamp-red);
-			border-radius: 50%;
-			box-sizing: border-box;
-			-webkit-mask-image: linear-gradient(to bottom, 
-				white 0px, 
-				white 22px, 
-				transparent 25px, 
-				transparent 39px, 
-				white 42px, 
-				white 100%);
-		}
+        .inner-ring {
+            position: absolute;
+            width: 64px;
+            height: 64px;
+            border: 1.5px solid var(--stamp-red);
+            border-radius: 50%;
+            box-sizing: border-box;
+            -webkit-mask-image: linear-gradient(to bottom, 
+                white 0px, 
+                white 22px, 
+                transparent 25px, 
+                transparent 39px, 
+                white 42px, 
+                white 100%);
+        }
 
-		.stamp-text {
-			font-size: 16px;
-			letter-spacing: 1px;
-			z-index: 10;
-			/* 移除之前的 scale(1.1, 0.9)，恢復正常比例 */
-			transform: none; 
-			white-space: nowrap;
-		}
+        .stamp-text {
+            font-size: 16px;
+            letter-spacing: 1px;
+            z-index: 10;
+            transform: none; 
+            white-space: nowrap;
+        }
 
-		.star {
-			position: absolute;
-			font-size: 9px;
-			left: 50%;
-			top: 50%;
-			width: 10px;
-			height: 10px;
-			text-align: center;
-			line-height: 10px;
-		}
+        .star {
+            position: absolute;
+            font-size: 9px;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            text-align: center;
+            line-height: 10px;
+        }
 
-		/* 配合 80px 容器的精確位置 */
-		.s1 { margin-left: -24px; margin-top: -26px; transform: rotate(-25deg); }
-		.s2 { margin-left: -5px;  margin-top: -32px; transform: rotate(0deg); }
-		.s3 { margin-left: 14px;  margin-top: -26px; transform: rotate(25deg); }
-		.s4 { margin-left: -24px; margin-top: 15px; transform: rotate(25deg); }
-		.s5 { margin-left: -5px;  margin-top: 22px; transform: rotate(0deg); }
-		.s6 { margin-left: 14px;  margin-top: 15px; transform: rotate(-25deg); }
-        /* --- 印章 CSS 結束 --- */
+        .s1 { margin-left: -24px; margin-top: -26px; transform: rotate(-25deg); }
+        .s2 { margin-left: -5px;  margin-top: -32px; transform: rotate(0deg); }
+        .s3 { margin-left: 14px;  margin-top: -26px; transform: rotate(25deg); }
+        .s4 { margin-left: -24px; margin-top: 15px; transform: rotate(25deg); }
+        .s5 { margin-left: -5px;  margin-top: 22px; transform: rotate(0deg); }
+        .s6 { margin-left: 14px;  margin-top: 15px; transform: rotate(-25deg); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; backdrop-filter: blur(4px); overflow-y: auto; }
         .modal-content { background: white; width: 92%; max-width: 420px; margin: 5% auto; padding: 25px; border-radius: 25px; box-sizing: border-box; }
@@ -196,7 +189,6 @@
 </head>
 <body>
 
-<!-- 新增：斑駁濾鏡定義 -->
 <svg style="position: absolute; width: 0; height: 0;">
     <filter id="grunge-filter">
         <feTurbulence type="fractalNoise" baseFrequency="0.12" numOctaves="3" result="noise" />
@@ -348,7 +340,6 @@
 
     function confirmAddCoupon() {
         const existing = userData.coupons.filter(c => c.bank === tempAdd.bank);
-        
         if (existing.length > 0) {
             if (tempAdd.amount === 0) {
                 alert(`⚠️ ${tempAdd.bank} 本週已有券，不能再新增白果。`);
@@ -359,13 +350,10 @@
                 return;
             }
         }
-
         userData.drawStatus[tempAdd.bank] = true;
-
         const targetDate = getNextMondayObj();
         const dateStr = `${targetDate.getMonth() + 1}月${targetDate.getDate()}日`;
         const timestamp = targetDate.getTime();
-
         for(let i=0; i<tempAdd.qty; i++) {
             userData.coupons.push({ 
                 id: Date.now().toString()+i, 
@@ -383,18 +371,20 @@
         document.documentElement.style.setProperty('--base-size', userData.fontSize + 'px');
         const container = document.getElementById('mainContainer');
         container.innerHTML = '';
-        
         const nowTs = Date.now();
         const oneDayMs = 24 * 60 * 60 * 1000;
-
         if(userData.myBanks.length === 0) {
             container.innerHTML = `<div style="text-align:center; color:#bbb; margin-top:80px; font-size:1.1rem;">請點擊 ⚙️ 設定銀行</div>`;
             return;
         }
-
         userData.myBanks.forEach(bank => {
             const isDrawn = userData.drawStatus[bank] || false;
-            const bankCoupons = userData.coupons.filter(c => c.bank === bank);
+            
+            // 升冪排序核心邏輯
+            const bankCoupons = userData.coupons
+                .filter(c => c.bank === bank)
+                .sort((a, b) => a.amount - b.amount); 
+
             const imgSrc = logoMap[bank] || ""; 
             const card = document.createElement('div');
             card.className = 'bank-card';
@@ -415,27 +405,23 @@
                         const isNoLuck = c.amount === 0;
                         const timeLeft = (c.expiryTs || 0) - nowTs;
                         const isExpiring = !isNoLuck && !c.used && timeLeft > 0 && timeLeft <= oneDayMs;
-                        
                         return `
-						<div class="coupon-wrapper ${c.used ? 'used' : ''} ${isExpiring ? 'expiring-soon' : ''} ${isNoLuck ? 'no-luck' : ''} amt-${c.amount}">
-							<div class="check-box-zone" onclick="toggleCoupon('${c.id}')">
-								<div class="check-circle">${isNoLuck ? '🥚' : '✓'}</div>
-							</div>
-							<span class="dashed-line"></span>
-							<span class="btn-delete" onclick="deleteCoupon('${c.id}')">🗑️</span>
-							
-							<!-- 印章：現在位於刪除按鈕左側 -->
-							${c.used ? `
-							<div class="stamp-effect-wrapper">
-								<div class="stamp-container">
-									<span class="star s1">★</span><span class="star s2">★</span><span class="star s3">★</span>
-									<div class="stamp-text">已使用</div>
-									<div class="inner-ring"></div>
-									<span class="star s4">★</span><span class="star s5">★</span><span class="star s6">★</span>
-								</div>
-							</div>
-							` : ''}
-
+                        <div class="coupon-wrapper ${c.used ? 'used' : ''} ${isExpiring ? 'expiring-soon' : ''} ${isNoLuck ? 'no-luck' : ''} amt-${c.amount}">
+                            <div class="check-box-zone" onclick="toggleCoupon('${c.id}')">
+                                <div class="check-circle">${isNoLuck ? '🥚' : '✓'}</div>
+                            </div>
+                            <span class="dashed-line"></span>
+                            <span class="btn-delete" onclick="deleteCoupon('${c.id}')">🗑️</span>
+                            ${c.used ? `
+                            <div class="stamp-effect-wrapper">
+                                <div class="stamp-container">
+                                    <span class="star s1">★</span><span class="star s2">★</span><span class="star s3">★</span>
+                                    <div class="stamp-text">已使用</div>
+                                    <div class="inner-ring"></div>
+                                    <span class="star s4">★</span><span class="star s5">★</span><span class="star s6">★</span>
+                                </div>
+                            </div>
+                            ` : ''}
                             <div class="coupon-info">
                                 <div>
                                     <h4 style="display:flex; align-items:center; gap:5px;">
@@ -466,7 +452,6 @@
     }
     function deleteCoupon(id) { if(confirm('刪除記錄？')){ userData.coupons = userData.coupons.filter(c => c.id !== id); saveData(); } }
     function weeklyReset() { if(confirm('⚠️ 確定重置本週資料嗎？')){ userData.drawStatus={}; userData.coupons=[]; saveData(); toggleModal('bankModal', false); } }
-    
     render();
 </script>
 
