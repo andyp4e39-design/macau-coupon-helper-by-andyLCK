@@ -204,7 +204,7 @@
 
 <div class="container" id="mainContainer"></div>
 
-<div class="footer-credit">v3.1 © Andy & Gemini. All rights reserved.</div>
+<div class="footer-credit">v3.2 © Andy & Gemini. All rights reserved.</div>
 
 <div class="modal" id="bankModal">
     <div class="modal-content">
@@ -259,15 +259,22 @@
     let userData = JSON.parse(localStorage.getItem('macau_v10')) || { myBanks: [], drawStatus: {}, coupons: [], fontSize: 16 };
     let tempAdd = { bank: '', amount: 10, qty: 1 };
 
-    function getNextMondayObj() {
-        const now = new Date();
-        const day = now.getDay();
-        const diff = (day === 0 ? 1 : 8 - day);
-        const nextMonday = new Date(now);
-        nextMonday.setDate(now.getDate() + diff);
-        nextMonday.setHours(23, 59, 59, 0);
-        return nextMonday;
-    }
+	function getNextMondayObj() {
+			const now = new Date();
+			const day = now.getDay(); // 0是週日, 1-6是週一至週六
+			
+			// 計算距離「本週五」還有幾天
+			// 如果今天是週五、六、日，則指向「下週五」
+			let diff = 5 - day;
+			if (diff <= 0) diff += 7;
+
+			const nextFriday = new Date(now);
+			nextFriday.setDate(now.getDate() + diff);
+			
+			// 強制設定為 00:00:00，代表週四深夜一過就失效
+			nextFriday.setHours(0, 0, 0, 0); 
+			return nextFriday;
+		}
 
     function saveData() { localStorage.setItem('macau_v10', JSON.stringify(userData)); render(); }
     
