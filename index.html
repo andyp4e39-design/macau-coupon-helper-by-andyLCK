@@ -25,8 +25,14 @@
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 0; color: #333; font-size: 1rem; line-height: 1.5; }
         
         header { background: var(--primary); color: white; padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 10px rgba(0,0,0,0.1); }
-        header h1 { margin: 0; font-size: 1.2rem; }
-        .settings-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; }
+        header h1 { margin: 0; font-size: 1.2rem; flex: 1; }
+        
+        .header-btns { display: flex; align-items: center; gap: 15px; }
+        .nav-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: white; padding: 5px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .nav-btn:active { transform: scale(0.9); }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .refreshing { animation: spin 0.8s linear; }
 
         .container { padding: 12px; max-width: 600px; margin: 0 auto; padding-bottom: 50px; }
 
@@ -77,11 +83,9 @@
         .coupon-wrapper.used { background: var(--used-bg); border-color: transparent !important; animation: none !important; }
         .coupon-wrapper.used .coupon-info h4, .coupon-wrapper.used .coupon-info p, .coupon-wrapper.used .coupon-amt-box * { color: #a0a0a0 !important; }
 
-        /* --- 手機優化：仿真印章 CSS (位置調整與縮小) --- */
         .stamp-effect-wrapper {
             position: absolute;
             top: 50%;
-            /* 將位置固定在刪除按鈕與虛線左側一點點 */
             right: 85px; 
             transform: translate(0, -50%);
             filter: url(#grunge-filter);
@@ -93,7 +97,7 @@
 
         .stamp-container {
             position: relative;
-            width: 65px; /* 縮小至 65px */
+            width: 65px;
             height: 65px;
             border: 2.5px solid var(--stamp-red);
             border-radius: 50%;
@@ -114,33 +118,11 @@
             border: 1.2px solid var(--stamp-red);
             border-radius: 50%;
             box-sizing: border-box;
-            -webkit-mask-image: linear-gradient(to bottom, 
-                white 0px, 
-                white 18px, 
-                transparent 21px, 
-                transparent 31px, 
-                white 34px, 
-                white 100%);
+            -webkit-mask-image: linear-gradient(to bottom, white 0px, white 18px, transparent 21px, transparent 31px, white 34px, white 100%);
         }
 
-        .stamp-text {
-            font-size: 13px; /* 字體相應縮小 */
-            letter-spacing: 0.5px;
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-        .star {
-            position: absolute;
-            font-size: 7px;
-            left: 50%;
-            top: 50%;
-            width: 8px;
-            height: 8px;
-            text-align: center;
-            line-height: 8px;
-        }
-
+        .stamp-text { font-size: 13px; letter-spacing: 0.5px; z-index: 10; white-space: nowrap; }
+        .star { position: absolute; font-size: 7px; left: 50%; top: 50%; width: 8px; height: 8px; text-align: center; line-height: 8px; }
         .s1 { margin-left: -20px; margin-top: -21px; transform: rotate(-25deg); }
         .s2 { margin-left: -4px;  margin-top: -26px; transform: rotate(0deg); }
         .s3 { margin-left: 12px;  margin-top: -21px; transform: rotate(25deg); }
@@ -172,19 +154,7 @@
         .size-btn { padding: 10px 2px; border: 1px solid #eee; border-radius: 12px; background: #f9f9f9; color: #7f8c8d; cursor: pointer; font-size: 0.85rem; text-align: center; }
         .size-btn.active { background: #3498db; color: white; border-color: #3498db; font-weight: bold; }
 
-        .footer-credit {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.4);
-            color: rgba(255, 255, 255, 0.8);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 10px;
-            z-index: 999;
-            pointer-events: none;
-            letter-spacing: 0.5px;
-        }
+        .footer-credit { position: fixed; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.4); color: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 6px; font-size: 10px; z-index: 999; pointer-events: none; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -199,12 +169,16 @@
 
 <header>
     <h1>💰 消費獎賞助手</h1>
-    <button class="settings-btn" onclick="toggleModal('bankModal', true)">⚙️</button>
+    <div class="header-btns">
+        <button class="nav-btn" id="refreshBtn" onclick="forceRefresh()" title="重新整理">↻</button>
+        <button class="nav-btn" onclick="toggleModal('bankModal', true)" title="設定">⚙️</button>
+    </div>
 </header>
 
 <div class="container" id="mainContainer"></div>
 
-<div class="footer-credit">v3.2 © Andy & Gemini. All rights reserved.</div>
+<!-- 已修改為 v3.4 -->
+<div class="footer-credit">v3.4 © Andy & Gemini. All rights reserved.</div>
 
 <div class="modal" id="bankModal">
     <div class="modal-content">
@@ -259,19 +233,21 @@
     let userData = JSON.parse(localStorage.getItem('macau_v10')) || { myBanks: [], drawStatus: {}, coupons: [], fontSize: 16 };
     let tempAdd = { bank: '', amount: 10, qty: 1 };
 
+    function forceRefresh() {
+        const btn = document.getElementById('refreshBtn');
+        btn.classList.add('refreshing');
+        setTimeout(() => {
+            location.reload(true);
+        }, 300);
+    }
+
 	function getNextMondayObj() {
 			const now = new Date();
-			const day = now.getDay(); // 0是週日, 1-6是週一至週六
-			
-			// 計算距離「本週五」還有幾天
-			// 如果今天是週五、六、日，則指向「下週五」
+			const day = now.getDay(); 
 			let diff = 5 - day;
 			if (diff <= 0) diff += 7;
-
 			const nextFriday = new Date(now);
 			nextFriday.setDate(now.getDate() + diff);
-			
-			// 強制設定為 00:00:00，代表週四深夜一過就失效
 			nextFriday.setHours(0, 0, 0, 0); 
 			return nextFriday;
 		}
