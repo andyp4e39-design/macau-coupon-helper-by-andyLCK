@@ -41,3 +41,8 @@ v3:
 2) Realistic Stamp: The "Used" stamp now features a grunge texture and multiply blending, making it look like real ink without distorting the shape.
 3) Version Footer: A subtle "v2 © Andy & Gemini" credit is pinned to the bottom-right for official versioning.
 4) Full Integration: All logic, sorting, and styling are merged into one stable file for better performance
+
+v3.5﹕  
+1) Color-Synchronized UI: Updated the dashboard's summary badges to dynamically match the exact brand colors of the corresponding coupon values below (e.g., Red for $10, Orange for $20, Green for $50, etc.).
+2) Refined Typography: Restored the text color of the coupon counts ("X張") back to a clean, crisp dark gray/black (#2d3748) for enhanced legibility and contrast against the white background.  
+3) Proportional Badge Stretching: Increased the vertical padding of the total platform summary pills, shifting them from a flat look to a taller, sleek rectangular tag format that matches your concept sketch.  
