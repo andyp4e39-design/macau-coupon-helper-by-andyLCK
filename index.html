@@ -158,6 +158,8 @@
         .footer-credit { position: fixed; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.4); color: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 6px; font-size: 10px; z-index: 999; pointer-events: none; letter-spacing: 0.5px; }
 
         /* 可用券統計區塊樣式 */
+        .summary-card-header { padding: 15px 18px 8px 18px; display: flex; flex-direction: column; gap: 8px; }
+        .summary-header-row2 { display: flex; justify-content: flex-end; gap: 6px; align-items: center; width: 100%; }
         .summary-badge-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px 18px 18px 18px; background: #fafafa; border-top: 1.5px solid #f3f3f3; }
         .summary-tag-pill { display: flex; align-items: stretch; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05); font-size: 0.85rem; border: 1px solid #e2e8f0; }
         .summary-tag-lbl { color: white; padding: 8px 12px; font-weight: bold; display: flex; align-items: center; }
@@ -185,7 +187,7 @@
 
 <div class="container" id="mainContainer"></div>
 
-<div class="footer-credit">v3.6 © Andy & Gemini. All rights reserved.</div>
+<div class="footer-credit">v3.7-雙行防擠壓版 © Andy & Gemini. All rights reserved.</div>
 
 <div class="modal" id="bankModal">
     <div class="modal-content">
@@ -373,15 +375,14 @@
         const activeCoupons = userData.coupons.filter(c => !c.used && c.amount > 0);
         if (activeCoupons.length > 0) {
             const counts = {};
-            let totalAmount = 0; // 新增：用來加總總金額的變數
+            let totalAmount = 0; 
             
             activeCoupons.forEach(c => {
                 counts[c.amount] = (counts[c.amount] || 0) + 1;
-                totalAmount += c.amount; // 累加每張有效券的金額
+                totalAmount += c.amount; 
             });
             const sortedAmounts = Object.keys(counts).map(Number).sort((a, b) => a - b);
             
-            // 金額與顏色對應配置系統
             const colorConfig = {
                 10: '#d63031',
                 20: '#f39c12',
@@ -393,12 +394,12 @@
             const summaryCard = document.createElement('div');
             summaryCard.className = 'bank-card';
             summaryCard.innerHTML = `
-                <div class="card-header" style="background:#fffaf9; border-bottom: none;">
+                <div class="summary-card-header" style="background:#fffaf9;">
                     <div class="bank-header-left">
                         <span style="font-size:1.2rem;">📊</span>
                         <span style="font-weight:bold; font-size:1.1rem; color:#2d3748;">目前可用券統計 (全平台)</span>
                     </div>
-                    <div style="display:flex; gap:6px; align-items:center;">
+                    <div class="summary-header-row2">
                         <span class="status-pill" style="background:#fef2f2; color:var(--danger); border:1px solid #fee2e2; padding: 4px 10px;">總計 MOP ${totalAmount}</span>
                         <span class="status-pill" style="background:#eafaf1; color:var(--success); border:1px solid #d4f5e2; padding: 4px 10px;">共 ${activeCoupons.length} 張</span>
                     </div>
