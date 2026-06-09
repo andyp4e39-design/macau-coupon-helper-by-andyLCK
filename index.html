@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqfwG2LUc8BVhvhhvNz-sjUEA_vQg8YW9PwOxFPgduC1smL6xvxvdMQA1s1WtW9iqtNq1JJ0ZKB9IoXBqWSeovIY4aPBKSZzEqJe_oZllao0kNyM81vLwLQpY-EsiMJqedQ66oIgIV8jP8/s400/money_kinbut_texta.png">
+    <link class="tab-icon" rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqfwG2LUc8BVhvhhvNz-sjUEA_vQg8YW9PwOxFPgduC1smL6xvxvdMQA1s1WtW9iqtNq1JJ0ZKB9IoXBqWSeovIY4aPBKSZzEqJe_oZllao0kNyM81vLwLQpY-EsiMJqedQ66oIgIV8jP8/s400/money_kinbut_texta.png">
     
     <link rel="icon" type="image/png" sizes="192x192" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqfwG2LUc8BVhvhhvNz-sjUEA_vQg8YW9PwOxFPgduC1smL6xvxvdMQA1s1WtW9iqtNq1JJ0ZKB9IoXBqWSeovIY4aPBKSZzEqJe_oZllao0kNyM81vLwLQpY-EsiMJqedQ66oIgIV8jP8/s400/money_kinbut_texta.png">
     
@@ -157,9 +157,9 @@
 
         .footer-credit { position: fixed; bottom: 10px; right: 10px; background: rgba(0, 0, 0, 0.4); color: rgba(255, 255, 255, 0.8); padding: 4px 10px; border-radius: 6px; font-size: 10px; z-index: 999; pointer-events: none; letter-spacing: 0.5px; }
 
-        /* 可用券統計區塊樣式 */
-        .summary-card-header { padding: 15px 18px 8px 18px; display: flex; flex-direction: column; gap: 8px; }
-        .summary-header-row2 { display: flex; justify-content: flex-end; gap: 6px; align-items: center; width: 100%; }
+        /* 可用券統計區塊新樣式 - 智慧防擠壓彈性佈局 */
+        .summary-card-header { padding: 15px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .summary-header-right-badges { display: flex; gap: 6px; align-items: center; margin-left: auto; }
         .summary-badge-container { display: flex; flex-wrap: wrap; gap: 10px; padding: 15px 18px 18px 18px; background: #fafafa; border-top: 1.5px solid #f3f3f3; }
         .summary-tag-pill { display: flex; align-items: stretch; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.05); font-size: 0.85rem; border: 1px solid #e2e8f0; }
         .summary-tag-lbl { color: white; padding: 8px 12px; font-weight: bold; display: flex; align-items: center; }
@@ -187,7 +187,7 @@
 
 <div class="container" id="mainContainer"></div>
 
-<div class="footer-credit">v3.6 © Andy & Gemini. All rights reserved.</div>
+<div class="footer-credit">v3.6-智能自適應版 © Andy & Gemini. All rights reserved.</div>
 
 <div class="modal" id="bankModal">
     <div class="modal-content">
@@ -395,11 +395,11 @@
             summaryCard.className = 'bank-card';
             summaryCard.innerHTML = `
                 <div class="summary-card-header" style="background:#fffaf9;">
-                    <div class="bank-header-left">
+                    <div class="bank-header-left" style="white-space: nowrap;">
                         <span style="font-size:1.2rem;">📊</span>
                         <span style="font-weight:bold; font-size:1.1rem; color:#2d3748;">目前可用券統計 (全平台)</span>
                     </div>
-                    <div class="summary-header-row2">
+                    <div class="summary-header-right-badges">
                         <span class="status-pill" style="background:#fef2f2; color:var(--danger); border:1px solid #fee2e2; padding: 4px 10px;">總計 MOP ${totalAmount}</span>
                         <span class="status-pill" style="background:#eafaf1; color:var(--success); border:1px solid #d4f5e2; padding: 4px 10px;">共 ${activeCoupons.length} 張</span>
                     </div>
