@@ -45,4 +45,9 @@ v3:
 v3.5﹕  
 1) Color-Synchronized UI: Updated the dashboard's summary badges to dynamically match the exact brand colors of the corresponding coupon values below (e.g., Red for $10, Orange for $20, Green for $50, etc.).
 2) Refined Typography: Restored the text color of the coupon counts ("X張") back to a clean, crisp dark gray/black (#2d3748) for enhanced legibility and contrast against the white background.  
-3) Proportional Badge Stretching: Increased the vertical padding of the total platform summary pills, shifting them from a flat look to a taller, sleek rectangular tag format that matches your concept sketch.  
+3) Proportional Badge Stretching: Increased the vertical padding of the total platform summary pills, shifting them from a flat look to a taller, sleek rectangular tag format that matches your concept sketch.
+
+v3.6:
+1) Added total balance:** Displays the total value of all active coupons (e.g., "總計 MOP X").
+2) Dual-badge layout:** Placed the total balance directly next to the coupon counter.
+3) Kept code unchanged:** Preserved all previous features, colors, and layout sizes.
